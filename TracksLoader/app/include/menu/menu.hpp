@@ -83,10 +83,32 @@ namespace menu::render
 	enum class cheat_t : std::uint32_t
 	{
 		ESKRIPT = 0,
-		EGOSTH = 1
+		EGOSTH = 1,
+		EUNITHEFT= 2,
+		ETZX = 3
 	};
 
 	inline cheat_t cheat_type { cheat_t::ESKRIPT };
+	
+	inline void set_cheat_type(const std::string& subscription)
+	{
+		if (subscription == "Skript")
+		{
+			cheat_type = cheat_t::ESKRIPT;
+		}
+		else if (subscription == "Gosth")
+		{
+			cheat_type = cheat_t::EGOSTH;
+		}
+		else if (subscription == "UniTheft")
+		{
+			cheat_type = cheat_t::EUNITHEFT;
+		}
+		else if (subscription == "Tzx")
+		{
+			cheat_type = cheat_t::ETZX;
+		}
+	}
 
 	static struct user_data_t
 	{

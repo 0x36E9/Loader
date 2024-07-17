@@ -23,6 +23,10 @@
     <ClCompile Include="src\requests\requests.cpp">
       <Filter>requests</Filter>
     </ClCompile>
+    <ClCompile Include="src\security\SyscallManager.cpp" />
+    <ClCompile Include="src\security\RuntimeSecurity.cpp" />
+    <ClCompile Include="src\security\Encryption.cpp" />
+    <ClCompile Include="src\core\cleaner\cleaner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="stdafx">
@@ -49,6 +53,12 @@
     <Filter Include="menu\custom">
       <UniqueIdentifier>{3b1371b8-53c6-4d11-b333-8f35262f9775}</UniqueIdentifier>
     </Filter>
+    <Filter Include="security">
+      <UniqueIdentifier>{eda3a1ce-6eed-42b7-b442-51e41b6b4fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\cleaner">
+      <UniqueIdentifier>{334bc89f-9073-4591-b40c-9211709c72af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stdafx.hpp">
@@ -72,5 +82,10 @@
     <ClInclude Include="include\requests\requests.hpp">
       <Filter>requests</Filter>
     </ClInclude>
+    <ClInclude Include="include\security\Encryption.hpp" />
+    <ClInclude Include="include\security\FnvHash.hpp" />
+    <ClInclude Include="include\security\RuntimeSecurity.hpp" />
+    <ClInclude Include="include\security\SyscallManager.hpp" />
+    <ClInclude Include="include\core\cleaner\cleaner.hpp" />
   </ItemGroup>
 </Project>

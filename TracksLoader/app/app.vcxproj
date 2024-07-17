@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\cleaner\cleaner.cpp" />
     <ClCompile Include="src\core\injection\injection.cpp" />
     <ClCompile Include="src\core\memory\memory.cpp" />
     <ClCompile Include="src\main.cpp">
@@ -169,6 +170,9 @@
     <ClCompile Include="src\menu\render.cpp" />
     <ClCompile Include="src\menu\window.cpp" />
     <ClCompile Include="src\requests\requests.cpp" />
+    <ClCompile Include="src\security\Encryption.cpp" />
+    <ClCompile Include="src\security\RuntimeSecurity.cpp" />
+    <ClCompile Include="src\security\SyscallManager.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -176,11 +180,16 @@
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\cleaner\cleaner.hpp" />
     <ClInclude Include="include\core\injection\injection.hpp" />
     <ClInclude Include="include\core\memory\memory.hpp" />
     <ClInclude Include="include\menu\custom\custom.hpp" />
     <ClInclude Include="include\menu\menu.hpp" />
     <ClInclude Include="include\requests\requests.hpp" />
+    <ClInclude Include="include\security\Encryption.hpp" />
+    <ClInclude Include="include\security\FnvHash.hpp" />
+    <ClInclude Include="include\security\RuntimeSecurity.hpp" />
+    <ClInclude Include="include\security\SyscallManager.hpp" />
     <ClInclude Include="include\stdafx.hpp" />
     <ClInclude Include="include\utils\utils.hpp" />
   </ItemGroup>

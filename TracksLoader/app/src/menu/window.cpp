@@ -1,5 +1,7 @@
 #include "stdafx.hpp"
 #include "menu\menu.hpp"
+#include <Security/RuntimeSecurity.hpp>
+#include <Security/SyscallManager.hpp>
 
 bool menu::window::create_window::run( const std::function<void( ID3D11Device * )> style, const std::function<bool( HWND, ImVec2 )> render )
 {
@@ -15,6 +17,8 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 
 	particles::setup_circles();
 
+	auto offset_x = 0, offset_y = 0;
+
 	while ( msg.message != WM_QUIT )
 	{
 		if ( PeekMessageA( &msg, nullptr, 0U, 0U, PM_REMOVE ) )
@@ -29,12 +33,31 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 
 		ImGui::NewFrame( );
 		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			{
+				POINT point;
+				RECT  rect;
+
+				GetCursorPos(&point);
+				GetWindowRect(hwnd, &rect);
+
+				offset_x = point.x - rect.left;
+				offset_y = point.y - rect.top;
+			}
+
 			static auto next_time = ImGui::GetTime( ) + 5.f;
 
 			if ( ImGui::GetTime( ) > next_time )
 			{
-				//
 				next_time = ImGui::GetTime( ) + 5.f;
+			}
+
+			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && offset_y >= 0 &&
+				offset_y <= ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 1.0f)
+			{
+				POINT point;
+				GetCursorPos(&point);
+				SetWindowPos(hwnd, nullptr, point.x - offset_x, point.y - offset_y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 			}
 
 			if ( !render( this->hwnd, this->window_size ) )
@@ -86,29 +109,6 @@ LRESULT WINAPI menu::window::create_window::wnd_proc( HWND hwnd, UINT msg, WPARA
 {
 	if ( ImGui_ImplWin32_WndProcHandler( hwnd, msg, wparam, lparam ) )
 		return true;
-
-	switch ( msg )
-	{
-		case WM_QUIT:
-		{
-			// @brief: this function causes crashes when you virtualize it so we just coment
-			// PostQuitMessage( 0 );
-		}
-		break;
-
-		case WM_NCHITTEST:
-		{
-			RECT rect {};
-			GetWindowRect( hwnd, &rect );
-
-			POINT pos {};
-			GetCursorPos( &pos );
-
-			if ( DefWindowProcA( hwnd, msg, wparam, lparam ) == HTCLIENT && ( pos.y < ( rect.top + 15 ) ) )
-				return HTCAPTION;
-		}
-		break;
-	}
 
 	return DefWindowProcA( hwnd, msg, wparam, lparam );
 }
