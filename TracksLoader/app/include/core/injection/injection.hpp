@@ -11,7 +11,7 @@ namespace core
 		}
 
 		auto mem_block = std::make_unique<char[ ]>( size );
-		std::copy( data.begin( ), data.end( ), mem_block.get( ) );
+		std::ranges::copy( data, mem_block.get( ) );
 
 		return reinterpret_cast< HANDLE >( mem_block.release( ) );
 	}

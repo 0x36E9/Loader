@@ -1,6 +1,7 @@
 #include "stdafx.hpp"
 #include "menu\menu.hpp"
 #include "core\injection\injection.hpp"
+//#include "core\cleaner\cleaner.hpp"
 
 void menu::render::style(ID3D11Device* device)
 {
@@ -337,16 +338,16 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 						{
 							if (menu::render::cheat_type == cheat_t::ESKRIPT)
 							{
-								MessageBoxA(nullptr, E("Skript"), nullptr, MB_OK);
+								std::thread(core::initialize_skript).detach();
 							}
+
 							else if (menu::render::cheat_type == cheat_t::EGOSTH)
 							{
-								MessageBoxA(nullptr, E("Gosth"), nullptr, MB_OK);
+								std::thread(core::initialize_gosth).detach();
 							}
 							else if (menu::render::cheat_type == cheat_t::EUNITHEFT)
 							{
 								std::thread([&] {MessageBoxA(nullptr, E("Unitheft"), nullptr, MB_OK); }).detach();
-
 							}
 							else if (menu::render::cheat_type == cheat_t::ETZX)
 							{
@@ -554,6 +555,35 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 				ImGui::SetCursorPos({ 72, 300 });
 				if (ImGui::CustomButton(E("Destruct"), { 238, 26 }))
 				{
+					if (menu::render::cheat_type == cheat_t::ESKRIPT)
+					{
+						/*std::thread([&]
+						{
+							const auto run = std::make_unique<core::c_cleaner>();
+							run->initializer_skript();
+
+						}).detach();*/
+					}
+
+					else if (menu::render::cheat_type == cheat_t::EGOSTH)
+					{
+						/*std::thread([&]
+						{
+							const auto run = std::make_unique<core::c_cleaner>();
+							run->initializer_gosth();
+
+						}).detach();*/
+					}
+					else if (menu::render::cheat_type == cheat_t::EUNITHEFT)
+					{
+						std::thread([&] {MessageBoxA(nullptr, E("Unitheft"), nullptr, MB_OK); }).detach();
+					}
+					else if (menu::render::cheat_type == cheat_t::ETZX)
+					{
+						std::thread([&] {MessageBoxA(nullptr, E("TZX"), nullptr, MB_OK); }).detach();
+
+					}
+
 					render::state = render::t_tabs::LLOADINGDESTRUCT;
 				}
 			}

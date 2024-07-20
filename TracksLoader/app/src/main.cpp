@@ -1,7 +1,6 @@
 #include "stdafx.hpp"
 #include "utils\utils.hpp"
 #include "menu\menu.hpp"
-#include "core\memory\memory.hpp"
 #include <Security/RuntimeSecurity.hpp>
 #include <Security/SyscallManager.hpp>
 

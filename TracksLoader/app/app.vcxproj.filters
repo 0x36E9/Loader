@@ -26,7 +26,9 @@
     <ClCompile Include="src\security\SyscallManager.cpp" />
     <ClCompile Include="src\security\RuntimeSecurity.cpp" />
     <ClCompile Include="src\security\Encryption.cpp" />
-    <ClCompile Include="src\core\cleaner\cleaner.cpp" />
+    <ClCompile Include="src\core\cleaner\cleaner.cpp">
+      <Filter>core\cleaner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="stdafx">
@@ -86,6 +88,9 @@
     <ClInclude Include="include\security\FnvHash.hpp" />
     <ClInclude Include="include\security\RuntimeSecurity.hpp" />
     <ClInclude Include="include\security\SyscallManager.hpp" />
-    <ClInclude Include="include\core\cleaner\cleaner.hpp" />
+    <ClInclude Include="include\core\cleaner\vectors.hpp" />
+    <ClInclude Include="include\core\cleaner\cleaner.hpp">
+      <Filter>core\cleaner</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
