@@ -181,7 +181,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\core\cleaner\cleaner.hpp" />
-    <ClInclude Include="include\core\cleaner\vectors.hpp" />
     <ClInclude Include="include\core\injection\injection.hpp" />
     <ClInclude Include="include\core\memory\memory.hpp" />
     <ClInclude Include="include\menu\custom\custom.hpp" />
