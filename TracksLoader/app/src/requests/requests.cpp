@@ -2,11 +2,9 @@
 #include "requests\requests.hpp"
 #include "utils\utils.hpp"
 
-#pragma optimize("", off)
-
 cpr::Response network::Requests::query_status( const std::string &hardwareId )
 {
-	VM_TIGER_RED_START
+	vmp_mutation;
 
 	nlohmann::json body {};
 	body[ E( "hardwareId" ) ] = hardwareId;
@@ -17,12 +15,12 @@ cpr::Response network::Requests::query_status( const std::string &hardwareId )
 
 	return response;
 
-	VM_TIGER_RED_END
+	vmp_end;
 }
 
 cpr::Response network::Requests::post_report( const std::string &hardwareId, const std::string &description, const std::string &image, const int type )
 {
-	VM_TIGER_RED_START
+	vmp_mutation;
 
 	nlohmann::json body {};
 	body[ E( "hardwareId" ) ] = hardwareId;
@@ -36,12 +34,12 @@ cpr::Response network::Requests::post_report( const std::string &hardwareId, con
 
 	return response;
 
-	VM_TIGER_RED_END
+	vmp_end;
 }
 
 cpr::Response network::Requests::post_login( const std::string &username, const std::string &password, const std::string &hardwareId )
 {
-	VM_TIGER_RED_START
+	vmp_mutation;
 
 	nlohmann::json body {};
 	body[ E( "username" ) ] = username;
@@ -58,12 +56,12 @@ cpr::Response network::Requests::post_login( const std::string &username, const 
 	log_dbg( "response: {}", response.text.c_str( ) );
 	return response;
 
-	VM_TIGER_RED_END
+	vmp_end;
 }
 
 cpr::Response network::Requests::post_register( const std::string &username, const std::string &password, const std::string &productKey, const std::string &hardwareId )
 {
-	VM_TIGER_RED_START
+	vmp_mutation;
 
 	nlohmann::json body {};
 	body[ E( "username" ) ] = username;
@@ -81,7 +79,5 @@ cpr::Response network::Requests::post_register( const std::string &username, con
 	log_dbg( "response: {}", response.text.c_str( ) );
 	return response;
 
-	VM_TIGER_RED_END
+	vmp_end;
 }
-
-#pragma optimize("", on)

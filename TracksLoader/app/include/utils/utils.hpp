@@ -28,6 +28,22 @@ namespace utils
 
 	}
 
+	namespace fs
+	{
+		__inline std::string read_file( const std::string &file_path )
+		{
+			std::ifstream file( file_path );
+			if ( !file.is_open( ) )
+			{
+				throw std::runtime_error( "Failed to open file: " + file_path );
+			}
+
+			std::stringstream buffer;
+			buffer << file.rdbuf( );
+			return buffer.str( );
+		}
+	}
+
 	namespace process
 	{
 		bool get_previleges( );
@@ -39,13 +55,13 @@ namespace utils
 	{
 		void create_process( const std::string &command );
 		bool search_drivers( const std::string &driver_name );
+		std::string get_user_info( );
 	}
 
 	namespace others
 	{
-		std::string bufferto_base64( std::vector<uint8_t> buffer );
+		std::string          bufferto_base64( std::vector<uint8_t> const& buffer );
 		std::vector<uint8_t> capture_screen( );
-		std::string get_hwid_hash( );
-		std::string parse_json( );
+		std::string          get_hwid_hash( );
 	}
 }

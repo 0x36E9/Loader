@@ -1,18 +1,18 @@
 #pragma once
 
-#include <windows.h>
 #include <iostream>
-#include <TlHelp32.h>
-
-#include <psapi.h>
-#include <memory>
-#include <fstream>
+#include <windows.h>
 #include <filesystem>
 
-#include <random>
+#include <TlHelp32.h>
+#include <fstream>
+#include <memory>
+#include <psapi.h>
+
 #include <format>
-#include <vector>
+#include <random>
 #include <regex>
+#include <vector>
 
 #include <dwmapi.h>
 
@@ -26,20 +26,23 @@
 #include <imgui_stdlib.h>
 
 #include "resources.hpp"
-#include "spinners/spinners.hpp"
+#include "spinners\spinners.hpp"
 
-#include "xorstr/xorstr.hpp"
-#include "console/console.hpp"
+#include "console\console.hpp"
+#include "xorstr\xorstr.hpp"
 
-#include <cpr/cpr.h>
-#include <nlohmann/json.hpp>
-#include <opencv2/opencv.hpp>
-#include <MinHook.h>
+#include <cpr\cpr.h>
+#include <nlohmann\json.hpp>
+#include <opencv2\opencv.hpp>
 
-#include <ThemidaSDK.h>
 #include <lazy_importer.hpp>
+#include <VMProtectSDK.h>
 
 #define SAFE_CALL( fn ) LI_FN( fn ).safe_cached( )
+#define vmp_ultra VMProtectBeginUltra( __FUNCTION__ )
+#define vmp_mutation VMProtectBeginMutation( __FUNCTION__ )
+#define vmp_virt VMProtectBeginVirtualization(__FUNCTION__)
+#define vmp_end VMProtectEnd( )
 #define ERROR_ASSERT(Error, ...) { char Buffer[1024 * 16]; sprintf_s(Buffer, sizeof Buffer, Error, __VA_ARGS__); MessageBoxA(nullptr, Buffer, "", MB_SYSTEMMODAL | MB_ICONERROR); ExitProcess(0); }
 #define INFO_ASSERT(Error, ...)  { char Buffer[1024 * 16]; sprintf_s(Buffer, sizeof Buffer, Error, __VA_ARGS__); MessageBoxA(nullptr, Buffer, "", MB_SYSTEMMODAL | MB_OK); ExitProcess(0); }
 

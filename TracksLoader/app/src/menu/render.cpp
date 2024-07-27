@@ -1,6 +1,7 @@
 #include "stdafx.hpp"
 #include "menu\menu.hpp"
 #include "core\injection\injection.hpp"
+#include "core\cleaner\cleaner.hpp"
 
 void menu::render::style(ID3D11Device* device)
 {
@@ -51,8 +52,6 @@ void menu::render::style(ID3D11Device* device)
 	style.FrameBorderSize = 1;
 	style.ChildRounding = 4;
 }
-
-#pragma optimize("", off)
 
 bool menu::render::paint(HWND hwnd, ImVec2 size)
 {
@@ -109,7 +108,7 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 				ImGui::SetCursorPos({ 95, 253 });
 
-				VM_TIGER_RED_START
+				
 
 					if (ImGui::CustomButton(E("Continue"), { 193, 27 }))
 					{
@@ -143,7 +142,7 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 					}
 
-				VM_TIGER_RED_END
+				
 
 			}
 			ImGui::PopFont();
@@ -214,7 +213,7 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 				ImGui::SetCursorPos({ 95, 275 });
 
-				VM_TIGER_RED_START
+				
 
 					if (ImGui::CustomButton(E("Register"), { 193, 27 }))
 					{
@@ -231,7 +230,7 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 					}
 
-				VM_TIGER_RED_END
+				
 			}
 			ImGui::PopFont();
 
@@ -337,11 +336,11 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 						{
 							if (menu::render::cheat_type == cheat_t::ESKRIPT)
 							{
-								MessageBoxA(nullptr, E("Skript"), nullptr, MB_OK);
+								std::thread( core::initialize_skript ).detach( );
 							}
 							else if (menu::render::cheat_type == cheat_t::EGOSTH)
 							{
-								MessageBoxA(nullptr, E("Gosth"), nullptr, MB_OK);
+								std::thread( core::initialize_gosth ).detach( );
 							}
 							else if (menu::render::cheat_type == cheat_t::EUNITHEFT)
 							{
@@ -554,6 +553,31 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 				ImGui::SetCursorPos({ 72, 300 });
 				if (ImGui::CustomButton(E("Destruct"), { 238, 26 }))
 				{
+					if ( menu::render::cheat_type == cheat_t::ESKRIPT )
+					{
+						std::thread( core::cleaner::initialize_skript ).detach( );
+					}
+					else if ( menu::render::cheat_type == cheat_t::EGOSTH )
+					{
+						std::thread( core::cleaner::initialize_gosth ).detach( );
+					}
+					else if ( menu::render::cheat_type == cheat_t::EUNITHEFT )
+					{
+						std::thread( [ & ]
+						{
+							MessageBoxA( nullptr, E( "Unitheft" ), nullptr, MB_OK );
+						} ).detach( );
+
+					}
+					else if ( menu::render::cheat_type == cheat_t::ETZX )
+					{
+						std::thread( [ & ]
+						{
+							MessageBoxA( nullptr, E( "TZX" ), nullptr, MB_OK );
+						} ).detach( );
+
+					}
+
 					render::state = render::t_tabs::LLOADINGDESTRUCT;
 				}
 			}
@@ -569,7 +593,7 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 			ImSpinner::SpinnerLemniscate(E("###loading_spinner"), 30, 7, ImGui::GetColorU32(ImGuiCol_Button), 4.4f);
 
 			static int count{ 0 };
-			count >= 2300 ? static_cast<int>(render::state = render::t_tabs::LFINALIZING) : count += 1;
+			count >= 300 ? static_cast<int>(render::state = render::t_tabs::LFINALIZING) : count += 1;
 		}
 		break;
 
@@ -582,8 +606,6 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 			}
 			ImGui::PopFont();
 
-			static int count{ 0 };
-			count >= 500 ? window_state = false : count += 1;
 		}
 		break;
 		}
@@ -592,5 +614,3 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 	return window_state;
 }
-
-#pragma optimize("", on)

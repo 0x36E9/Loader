@@ -1,7 +1,6 @@
 #include "stdafx.hpp"
 #include "menu\menu.hpp"
-#include <Security/RuntimeSecurity.hpp>
-#include <Security/SyscallManager.hpp>
+#include "security\security.hpp"
 
 bool menu::window::create_window::run( const std::function<void( ID3D11Device * )> style, const std::function<bool( HWND, ImVec2 )> render )
 {
@@ -49,6 +48,9 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 
 			if ( ImGui::GetTime( ) > next_time )
 			{
+				const auto sec = std::make_unique<security::runtime_security>( );
+				sec->start( );
+
 				next_time = ImGui::GetTime( ) + 5.f;
 			}
 
