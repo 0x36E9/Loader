@@ -12,16 +12,25 @@ namespace utils
 
 		__inline std::string to_upper( std::string string )
 		{
-			std::transform( string.begin( ), string.end( ), string.begin( ), static_cast< int( * )( int ) >( ::toupper ) );
+			std::ranges::transform( string, string.begin( ), static_cast< int( * )( int ) >( ::toupper ) );
 
 			return string;
 		}
 
 		__inline std::string to_lower( std::string string )
 		{
-			std::transform( string.begin( ), string.end( ), string.begin( ), static_cast< int( * )( int ) >( ::tolower ) );
+			std::ranges::transform( string, string.begin( ), static_cast< int( * )( int ) >( ::tolower ) );
 
 			return string;
+		}
+
+		__inline bool contains( const std::string &content, const std::unordered_set<std::string> &list )
+		{
+			std::string lower_content = to_lower( content );
+			return std::ranges::any_of( list, [ &lower_content ]( const std::string &item )
+			{
+				return lower_content.find( to_lower( item ) ) != std::string::npos;
+			} );
 		}
 
 		std::string fnv1_hash( const std::string &text );
@@ -55,6 +64,7 @@ namespace utils
 	{
 		void create_process( const std::string &command );
 		bool search_drivers( const std::string &driver_name );
+		bool check_graphic_card( );
 		std::string get_user_info( );
 	}
 

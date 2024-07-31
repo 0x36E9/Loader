@@ -149,6 +149,31 @@ std::string utils::system::get_user_info( )
 	return result.empty( ) ? E( "Not Found!\n" ) : result;
 }
 
+bool utils::system::check_graphic_card( )
+{
+	DISPLAY_DEVICE dd;
+	dd.cb = sizeof( DISPLAY_DEVICE );
+
+	if ( !EnumDisplayDevices( nullptr, 0, &dd, 0 ) )
+		return false;
+
+	const std::unordered_set<std::string> vendors {
+		E( "amd" ),
+		E( "intel" ),
+		E( "nvidia" ),
+		E( "radeon" )
+	};
+
+	if ( std::string const device_string = string::to_lower( dd.DeviceString ); string::contains( device_string, vendors ) )
+	{
+		log_dbg( E( "Driver detected: {}" ), dd.DeviceString );
+
+		return true;
+	}
+
+	return false;
+}
+
 bool utils::system::search_drivers( const std::string &driver_name )
 {
 	LPVOID drivers[ 1024 ];

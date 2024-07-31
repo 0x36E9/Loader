@@ -33,6 +33,11 @@ auto __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, int) -> int
 		ERROR_ASSERT(E("vanguard anti-cheat is running under your computer, please close it!"));
 	}
 
+	if (!utils::system::check_graphic_card( ) )
+	{
+		ERROR_ASSERT( E("A graphics card was not found, and the software cannot run without it. Please contact an administrator! ") )
+	}
+
 	report->security_callback( "" , 0 );
 
 	const auto window = std::make_unique<menu::window::create_window>(ImVec2(379, 350));
