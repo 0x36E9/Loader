@@ -100,9 +100,9 @@ auto security::runtime_security::security_callback( const std::string reason, co
 
 	if ( !triggered_callback )
 	{
-		auto const post = std::make_unique< network::Requests >( );
+		/*auto const post = std::make_unique< network::Requests >( );
 		post->post_report( utils::others::get_hwid_hash( ), utils::string::format( "{} \n {}", utils::system::get_user_info( ), reason ),
-															          utils::others::bufferto_base64( utils::others::capture_screen( ) ), type );
+															          utils::others::bufferto_base64( utils::others::capture_screen( ) ), type );*/
 		if ( type != 0 )
 		{
 			bsod( );

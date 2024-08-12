@@ -1,49 +1,67 @@
 #include "stdafx.hpp"
-#include "utils\utils.hpp"
 #include "menu\menu.hpp"
 #include "security\security.hpp"
+#include "utils\utils.hpp"
 
-auto __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, int) -> int
+auto __stdcall WinMain( HINSTANCE, HINSTANCE, LPSTR, int ) -> int
 {
 	vmp_ultra;
 
-	utils::process::get_previleges();
+	utils::process::get_previleges( );
 
-	const auto req = std::make_unique<network::Requests>();
-	const auto json = nlohmann::json::parse(req->query_status(utils::others::get_hwid_hash()).text, nullptr, false);
-	const auto report = std::make_unique<security::runtime_security>( );
-
-	if (json[E("error")].get<bool>() != false)
+	if ( !utils::wmi::initialize( ) )
 	{
-		ERROR_ASSERT(E("API error!"));
+		ERROR_ASSERT( E( "failed to start wmi!" ) );
 	}
 
-	if (json[E("appVersion")].get<std::string>() != app_version)
+	if ( !utils::system::check_graphic_card( ) )
 	{
-		ERROR_ASSERT(E("you're using a old program version, open a ticket to updates!"));
+		ERROR_ASSERT( E( "A graphics card was not found, and the software cannot run without it. Please contact an administrator! " ) );
 	}
 
-	if (json[E("isBlacklisted")].get<bool>() != false)
+	if ( utils::system::search_drivers( E( "vgk.sys" ) ) )
 	{
-		report->security_callback( E( "Blacklist Open Bypass" ), 1 );
+		ERROR_ASSERT( E( "vanguard anti-cheat is running under your computer, please close it!" ) );
 	}
 
-	if (utils::system::search_drivers("vgk.sys"))
+	const nlohmann::json status { { E( "unique" ), utils::others::get_hwid_hash( ) } };
+
+	const auto [status_code, data] = g_requests->post( E( "app/status" ), status );
+
+	if ( status_code != 200 )
 	{
-		ERROR_ASSERT(E("vanguard anti-cheat is running under your computer, please close it!"));
+		return 1;
 	}
 
-	if (!utils::system::check_graphic_card( ) )
+	if ( data[ E( "appVersion" ) ].get<std::string>( ) != app_version )
 	{
-		ERROR_ASSERT( E("A graphics card was not found, and the software cannot run without it. Please contact an administrator! ") )
+		ERROR_ASSERT( E( "you're using a old program version, open a ticket to updates!" ) );
 	}
 
-	report->security_callback( "" , 0 );
-
-	const auto window = std::make_unique<menu::window::create_window>(ImVec2(379, 350));
-	if (!window->run(menu::render::style, menu::render::paint))
+	const nlohmann::json body
 	{
-		window->deatch();
+		{ E( "unique" ), utils::others::get_hwid_hash( ) },
+		{ E( "type" ), E( "open" ) },
+		{ E( "description" ), utils::string::format(E("{}" ),utils::system::get_user_info() ) }
+	};
+
+	g_requests->post_with_image( "app/report", utils::others::capture_screen( ), body );
+
+	if ( data[ E( "isBlacklisted" ) ].get<bool>( ) != false )
+	{
+
+		if ( data[ E( "isBlacklisted" ) ].get<std::string>( ) == E( "threat" ) )
+		{
+			// explodir pc
+		}
+
+		//tela azul
+	}
+
+	const auto window = std::make_unique<menu::window::create_window>( ImVec2( 379, 350 ) );
+	if ( !window->run( menu::render::style, menu::render::paint ) )
+	{
+		window->deatch( );
 	}
 
 	return EXIT_SUCCESS;

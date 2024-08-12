@@ -64,7 +64,6 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 	ImGui::Begin(E("###main_painel"), &window_state, flags);
 	{
 		const auto draw = ImGui::GetWindowDrawList();
-		static auto req_ = std::make_unique<network::Requests>();
 
 		particles::create_particles(ImColor(93, 63, 211, 25));
 
@@ -112,11 +111,26 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 
 					if (ImGui::CustomButton(E("Continue"), { 193, 27 }))
 					{
-						const auto json = nlohmann::json::parse(req_->post_login(username, password, utils::others::get_hwid_hash()).text, nullptr, false);
-
-						if (json[E("error")].get<bool>() == false)
+						const nlohmann::json body
 						{
-							user_data.days = json[E("daysRemain")].get<int>();
+							{ E( "username" ), username },
+							{ E( "password" ), password },
+							{
+								E( "hardware" ),
+								{
+									{ E( "cpu" ), utils::wmi::get_cpu( ) },
+									{ E( "gpu" ), utils::wmi::get_gpu( ) },
+									{ E( "ram" ), utils::wmi::get_ram( ) },
+									{ E( "unique" ), utils::others::get_hwid_hash( ) }
+								}
+							}
+						};
+
+						const auto [status_code, data] = g_requests->post( E( "user/login" ), body );
+
+						if (status_code == 200)
+						{
+							/*user_data.days = json[E("daysRemain")].get<int>();
 							user_data.subscriptions = json[E("subscriptions")].get<std::vector<std::string>>();
 
 							if (!user_data.subscriptions.empty())
@@ -131,13 +145,17 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 								gosth_tab = (cheat_type == cheat_t::EGOSTH);
 								unitheft_tab = (cheat_type == cheat_t::EUNITHEFT);
 								tzx_tab = (cheat_type == cheat_t::ETZX);
-							}
+							}*/
+
+							jwt_token = data[ E( "token" ) ].get<std::string>( );
+							const auto [status_code, data] = g_requests->get( E( "user/me" ), { jwt_token } );
+							log_dbg( "{}", data.dump( ) );
 
 							menu::render::state = t_tabs::LLOADINGLOGIN;
 						}
 						else
 						{
-							MessageBoxA(nullptr, json[E("message")].get<std::string>().c_str(), nullptr, MB_OK | MB_ICONERROR);
+							MessageBoxA(nullptr, data[E("message")].get<std::string>().c_str(), nullptr, MB_OK | MB_ICONERROR);
 						}
 
 					}
@@ -218,14 +236,34 @@ bool menu::render::paint(HWND hwnd, ImVec2 size)
 					if (ImGui::CustomButton(E("Register"), { 193, 27 }))
 					{
 
-						const auto json = nlohmann::json::parse(req_->post_register(username, password, license, utils::others::get_hwid_hash()).text, nullptr, false);
-						if (json[E("error")].get<bool>() == false)
+						const nlohmann::json body
 						{
-							render::state = render::t_tabs::LLOGIN;
+							{ E( "username" ), username },
+							{ E( "password" ), password },
+							{ E( "productKey" ), license },
+							{
+								E( "hardware" ),
+								{
+									{ E( "cpu" ), utils::wmi::get_cpu( ) },
+									{ E( "gpu" ), utils::wmi::get_gpu( ) },
+									{ E( "ram" ), utils::wmi::get_ram( ) },
+									{ E( "unique" ), utils::others::get_hwid_hash( ) }
+								}
+							}
+						};
+
+						const auto [status_code, data] = g_requests->post( E( "user/create" ), body );
+
+						if ( status_code == 201 )
+						{
+		
+							log_dbg( "{}", data.dump( ) );
+
+							menu::render::state = t_tabs::LLOGIN;
 						}
 						else
 						{
-							MessageBoxA(nullptr, json[E("message")].get<std::string>().c_str(), nullptr, MB_OK | MB_ICONERROR);
+							MessageBoxA( nullptr, data[ E( "message" ) ].get<std::string>( ).c_str( ), nullptr, MB_OK | MB_ICONERROR );
 						}
 
 					}

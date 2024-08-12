@@ -13,8 +13,12 @@
 #include <random>
 #include <regex>
 #include <vector>
+#include <unordered_set>
+
 
 #include <dwmapi.h>
+#include <wbemcli.h>
+#include <comutil.h>
 
 #include <d3d11.h>
 #include <d3dx11.h>
@@ -31,9 +35,8 @@
 #include "console\console.hpp"
 #include "xorstr\xorstr.hpp"
 
-#include <cpr\cpr.h>
+#include <curl/curl.h>
 #include <nlohmann\json.hpp>
-#include <opencv2\opencv.hpp>
 
 #include <lazy_importer.hpp>
 #include <VMProtectSDK.h>
@@ -46,4 +49,4 @@
 #define ERROR_ASSERT(Error, ...) { char Buffer[1024 * 16]; sprintf_s(Buffer, sizeof Buffer, Error, __VA_ARGS__); MessageBoxA(nullptr, Buffer, "", MB_SYSTEMMODAL | MB_ICONERROR); ExitProcess(0); }
 #define INFO_ASSERT(Error, ...)  { char Buffer[1024 * 16]; sprintf_s(Buffer, sizeof Buffer, Error, __VA_ARGS__); MessageBoxA(nullptr, Buffer, "", MB_SYSTEMMODAL | MB_OK); ExitProcess(0); }
 
-constexpr std::string_view app_version = "1.3.0";
+constexpr std::string_view app_version = "1.4.0";

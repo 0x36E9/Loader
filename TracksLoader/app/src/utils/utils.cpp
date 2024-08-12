@@ -100,6 +100,148 @@ void utils::system::create_process( const std::string &command )
 	CloseHandle( pi.hThread );
 }
 
+std::string utils::string::bstr_to_str( const BSTR bstr )
+{
+	if ( !bstr )
+		return {};
+
+	const std::wstring ws( bstr, SysStringLen( bstr ) );
+	using facet_type = std::codecvt<wchar_t, char, std::mbstate_t>;
+	[[maybe_unused]] auto &facet = std::use_facet<facet_type>( std::locale( ) );
+	std::wstring_convert<std::remove_reference_t<decltype( facet )>> converter;
+
+	return converter.to_bytes( ws );
+}
+
+bool utils::wmi::initialize( )
+{
+
+	if ( FAILED( CoInitializeEx( nullptr, COINIT_MULTITHREADED ) ) )
+	{
+		return false;
+	}
+
+	if ( FAILED( CoInitializeSecurity( nullptr, -1, nullptr, nullptr, RPC_C_AUTHN_LEVEL_DEFAULT,
+									   RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE, nullptr ) ) )
+	{
+		CoUninitialize( );
+		return false;
+	}
+
+	if ( FAILED( CoCreateInstance( CLSID_WbemLocator, nullptr, CLSCTX_INPROC_SERVER,
+								   IID_IWbemLocator, reinterpret_cast< void ** >( &locator ) ) ) )
+	{
+		CoUninitialize( );
+		return false;
+	}
+
+	if ( FAILED( locator->ConnectServer( _bstr_t( E( L"ROOT\\CIMV2" ) ), nullptr, nullptr,
+										 nullptr, 0, nullptr, nullptr, &service ) ) )
+	{
+		locator->Release( );
+		CoUninitialize( );
+		return false;
+	}
+
+	if ( FAILED( CoSetProxyBlanket( service, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,
+									nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE ) ) )
+	{
+		service->Release( );
+		locator->Release( );
+		CoUninitialize( );
+		return false;
+	}
+
+	return true;
+}
+
+void utils::wmi::cleanup( )
+{
+	service->Release( );
+	locator->Release( );
+
+	CoUninitialize( );
+}
+
+bool utils::wmi::query( std::string_view wql_query, const std::function<void( IWbemClassObject *, VARIANT * )> &get_property )
+{
+
+	if ( !service )
+		return false;
+
+	IEnumWbemClassObject *enumerator {};
+	if ( FAILED( service->ExecQuery( _bstr_t( E( "WQL" ) ), bstr_t( wql_query.data( ) ),
+									 WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, nullptr, &enumerator ) ) )
+		return false;
+
+	IWbemClassObject *pcls_obj {};
+	unsigned long u_return {};
+
+	while ( enumerator )
+	{
+		enumerator->Next( WBEM_INFINITE, 1, &pcls_obj, &u_return );
+
+		if ( !u_return )
+			break;
+
+		VARIANT vt_prop {};
+		SAFE_CALL( VariantInit )( &vt_prop );
+		get_property( pcls_obj, &vt_prop );
+		SAFE_CALL( VariantClear )( &vt_prop );
+
+		pcls_obj->Release( );
+	}
+
+	enumerator->Release( );
+
+	return true;
+
+}
+
+std::string utils::wmi::get_cpu( )
+{
+	std::string output {};
+
+	utils::wmi::query( E( "SELECT * FROM Win32_Processor" ), [ & ]( IWbemClassObject *pcls_vbj, VARIANT *vt_prop )
+	{
+		pcls_vbj->Get( E( L"Name" ), 0, vt_prop, nullptr, nullptr );
+		output = utils::string::bstr_to_str( vt_prop->bstrVal );
+	} );
+
+	return output;
+}
+
+std::string utils::wmi::get_gpu( )
+{
+	std::string output {};
+
+	utils::wmi::query( E( "SELECT * FROM Win32_VideoController" ), [ & ]( IWbemClassObject *pcls_vbj, VARIANT *vt_prop )
+	{
+		pcls_vbj->Get( E( L"Name" ), 0, vt_prop, nullptr, nullptr );
+		output = utils::string::bstr_to_str( vt_prop->bstrVal );
+	} );
+
+	return output;
+}
+
+std::string utils::wmi::get_ram( )
+{
+	std::string output {};
+
+	utils::wmi::query( E( "SELECT * FROM Win32_ComputerSystem" ), [ & ]( IWbemClassObject *pcls_vbj, VARIANT *vt_prop )
+	{
+		pcls_vbj->Get( E( L"TotalPhysicalMemory" ), 0, vt_prop, nullptr, nullptr );
+		_bstr_t bstrVal( vt_prop->bstrVal );
+		long long total_bytes = _wtoll( bstrVal );
+		double total_gb = static_cast< double >( total_bytes ) / ( 1024 * 1024 * 1024 );
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision( 2 ) << total_gb;
+		output = stream.str( ) + " GB";
+	} );
+
+	return output;
+}
+
 std::string utils::system::get_user_info( )
 {
 	std::string result = {};
@@ -164,10 +306,10 @@ bool utils::system::check_graphic_card( )
 		E( "radeon" )
 	};
 
+	log_dbg( E( "Driver detected: {}" ), dd.DeviceString );
+
 	if ( std::string const device_string = string::to_lower( dd.DeviceString ); string::contains( device_string, vendors ) )
 	{
-		log_dbg( E( "Driver detected: {}" ), dd.DeviceString );
-
 		return true;
 	}
 
@@ -184,17 +326,17 @@ bool utils::system::search_drivers( const std::string &driver_name )
 
 	for ( auto i = 0; i < out_buffer / sizeof( drivers[ 0 ] ); i++ )
 	{
-		if ( TCHAR sz_driver[ 1024 ]; GetDeviceDriverBaseName( drivers[ i ], sz_driver, std::size(sz_driver) ) &&
-			string::to_lower( sz_driver ) == string::to_lower( driver_name ) )
+		if ( TCHAR sz_driver[ 1024 ]; GetDeviceDriverBaseName( drivers[ i ], sz_driver, std::size( sz_driver ) ) &&
+			 string::to_lower( sz_driver ) == string::to_lower( driver_name ) )
 			return true;
 	}
 
 	return false;
 }
 
-std::string utils::others::bufferto_base64( std::vector<uint8_t> const& buffer )
+std::string utils::others::bufferto_base64( std::vector<uint8_t> const &buffer )
 {
-	const std::string base64_chars = E("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+	const std::string base64_chars = E( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" );
 	std::string base64_result;
 
 	auto          i = 0;
@@ -349,16 +491,7 @@ std::vector<uint8_t> utils::others::capture_screen( )
 	LocalFree( pbmi );
 	GlobalFree( lp_bits );
 
-	std::vector<uint8_t> png_buffer {};
-
-	cv::Mat const image = cv::imdecode( bmp_buffer, cv::IMREAD_UNCHANGED );
-
-	if ( image.empty( ) )
-		return {};
-
-	cv::imencode( E(".png"), image, png_buffer );
-
-	return png_buffer;
+	return bmp_buffer;
 }
 
 std::string utils::others::get_hwid_hash( )

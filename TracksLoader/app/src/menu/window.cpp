@@ -14,7 +14,7 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 	MSG msg;
 	std::memset( &msg, 0, sizeof( msg ) );
 
-	particles::setup_circles();
+	particles::setup_circles( );
 
 	auto offset_x = 0, offset_y = 0;
 
@@ -32,13 +32,13 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 
 		ImGui::NewFrame( );
 		{
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
 			{
 				POINT point;
 				RECT  rect;
 
-				GetCursorPos(&point);
-				GetWindowRect(hwnd, &rect);
+				GetCursorPos( &point );
+				GetWindowRect( hwnd, &rect );
 
 				offset_x = point.x - rect.left;
 				offset_y = point.y - rect.top;
@@ -48,18 +48,19 @@ bool menu::window::create_window::run( const std::function<void( ID3D11Device * 
 
 			if ( ImGui::GetTime( ) > next_time )
 			{
+#ifndef _DEBUG
 				const auto sec = std::make_unique<security::runtime_security>( );
 				sec->start( );
-
+#endif
 				next_time = ImGui::GetTime( ) + 5.f;
 			}
 
-			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && offset_y >= 0 &&
-				offset_y <= ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 1.0f)
+			if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left ) && offset_y >= 0 &&
+				 offset_y <= ImGui::GetTextLineHeight( ) + ImGui::GetStyle( ).FramePadding.y * 1.0f )
 			{
 				POINT point;
-				GetCursorPos(&point);
-				SetWindowPos(hwnd, nullptr, point.x - offset_x, point.y - offset_y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+				GetCursorPos( &point );
+				SetWindowPos( hwnd, nullptr, point.x - offset_x, point.y - offset_y, 0, 0, SWP_NOSIZE | SWP_NOZORDER );
 			}
 
 			if ( !render( this->hwnd, this->window_size ) )

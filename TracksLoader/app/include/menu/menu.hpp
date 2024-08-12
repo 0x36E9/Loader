@@ -88,6 +88,8 @@ namespace menu::render
 		ETZX = 3
 	};
 
+	inline std::string jwt_token {};
+
 	inline cheat_t cheat_type { cheat_t::ESKRIPT };
 	
 	inline void set_cheat_type(const std::string& subscription)
