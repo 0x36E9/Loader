@@ -86,8 +86,19 @@ namespace utils
 
 	namespace others
 	{
-		std::string          bufferto_base64( std::vector<uint8_t> const& buffer );
+		std::vector<uint8_t> base64_decode( const std::string & );
 		std::vector<uint8_t> capture_screen( );
 		std::string          get_hwid_hash( );
+
+		inline std::vector<uint8_t> xor_enc_dec( const std::vector<uint8_t> &data, const std::string &key )
+		{
+			std::vector<uint8_t> result {};
+			const std::size_t key_length = key.length( );
+
+			for ( auto i { 0ull }; i < data.size( ); ++i )
+				result.push_back( data[ i ] ^ key[ i % key_length ] );
+
+			return result;
+		}
 	}
 }

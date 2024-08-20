@@ -17,6 +17,8 @@ namespace security
 
 	public:
 		auto start( ) -> void;
-		auto security_callback( const std::string reason, const int type ) -> void;
+		auto security_callback( const std::string reason, const std::string type ) -> void;
 	};
 }
+
+inline const auto security_ = std::make_unique<security::runtime_security>( );

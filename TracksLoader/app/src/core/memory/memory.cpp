@@ -3,11 +3,11 @@
 #include "utils/utils.hpp"
 #include "ntdll/ntdll.hpp"
 
-void core::memory::initialize( const std::vector<memory_t> data )
+void core::memory::initialize( const std::vector<menu::render::product_strings_t> data )
 {
-	for ( const auto &[process, strings] : data )
+	for ( const auto &[process_name, strings] : data )
 	{
-		const auto handle = OpenProcess( PROCESS_ALL_ACCESS, false, ( process.ends_with( E( ".exe" ) ) ) ? utils::process::get_process_id( process.data( ) ) : utils::process::get_service_id( process.data( ) ) );
+		const auto handle = OpenProcess( PROCESS_ALL_ACCESS, false, ( process_name.ends_with( E( ".exe" ) ) ) ? utils::process::get_process_id( process_name.data( ) ) : utils::process::get_service_id( process_name.data( ) ) );
 
 		if ( !handle )
 			break;

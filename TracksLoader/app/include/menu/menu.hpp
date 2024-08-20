@@ -84,38 +84,34 @@ namespace menu::render
 	{
 		ESKRIPT = 0,
 		EGOSTH = 1,
-		EUNITHEFT= 2,
+		EUNITHEFT = 2,
 		ETZX = 3
 	};
 
-	inline std::string jwt_token {};
-
 	inline cheat_t cheat_type { cheat_t::ESKRIPT };
-	
-	inline void set_cheat_type(const std::string& subscription)
-	{
-		if (subscription == "Skript")
-		{
-			cheat_type = cheat_t::ESKRIPT;
-		}
-		else if (subscription == "Gosth")
-		{
-			cheat_type = cheat_t::EGOSTH;
-		}
-		else if (subscription == "UniTheft")
-		{
-			cheat_type = cheat_t::EUNITHEFT;
-		}
-		else if (subscription == "Tzx")
-		{
-			cheat_type = cheat_t::ETZX;
-		}
-	}
 
-	static struct user_data_t
+	struct product_strings_t
 	{
-		int days;
-		std::vector<std::string> subscriptions;
+		std::string process_name;
+		std::vector<std::string> strings;
+	};
+
+	struct user_subscriptions_t
+	{
+		std::string name;
+		std::string expire_time;
+		std::string status;
+		std::string download_url;
+		std::string version;
+		std::vector<product_strings_t> strings;
+	};
+
+	inline struct user_data_t
+	{
+		std::string jwt_token {};
+		std::uint32_t id;
+		std::string username;
+		std::vector<user_subscriptions_t> subscriptions;
 	}	user_data;
 
 	enum class t_tabs : std::uint32_t
@@ -129,6 +125,8 @@ namespace menu::render
 		LCLEANER = 6,
 		LFINALIZING = 7
 	};
+
+	//std::uint32_t selected_index { };
 
 #ifdef _DEBUG
 	inline t_tabs state { t_tabs::LLOGIN };

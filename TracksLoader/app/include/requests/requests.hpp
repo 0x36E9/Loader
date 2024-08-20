@@ -19,7 +19,7 @@ namespace network
     private:
         static constexpr const char *base_url_ = "https://api.undetect.su/";
         static constexpr const char *api_key_ = "e278017841df";
-        static inline const nlohmann::json common_error_ = { {"statusCode", 0}, {"message", "Internal server error!"} };
+        static inline const nlohmann::json common_error_ = { {E( "statusCode"), 0}, {E( "message"), E( "Internal server error!")} };
 
         static size_t write_callback( void *contents, size_t size, size_t nmemb, void *userp )
         {

